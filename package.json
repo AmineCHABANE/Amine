@@ -4,7 +4,7 @@
   "description": "Developer-first API platform — AI Chat, Email Verification, Currency Exchange & more. One API key, generous free tier.",
   "author": "Amine Chabane",
   "license": "Apache-2.0",
-  "homepage": "https://amineapi.dev",
+  "homepage": "https://api-amine.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/AmineCHABANE/Amine"
@@ -22,6 +22,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "openai": "^4.77.0",
+    "stripe": "^17.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1"
