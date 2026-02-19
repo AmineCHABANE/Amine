@@ -1,0 +1,40 @@
+{
+  "name": "amineapi",
+  "version": "2.0.0",
+  "description": "Developer-first API platform — AI Chat, Email Verification, Currency Exchange & more. One API key, generous free tier.",
+  "author": "Amine Chabane",
+  "license": "Apache-2.0",
+  "homepage": "https://api-amine.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AmineCHABANE/Amine"
+  },
+  "keywords": [
+    "api",
+    "api-platform",
+    "developer-tools",
+    "ai-api",
+    "email-verification",
+    "currency-exchange",
+    "rest-api",
+    "saas"
+  ],
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "openai": "^4.77.0",
+    "stripe": "^17.5.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version"]
+  }
+}
