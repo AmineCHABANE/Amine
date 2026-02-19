@@ -1,44 +1,39 @@
 {
   "name": "amineapi",
-  "version": "1.0.0",
-  "description": "Official SDK for AmineAPI — One API key for AI Chat, Email Verify, Currency Exchange, QR Codes, IP Geolocation & URL Shortener. Free 1000 requests/month.",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "scripts": {
-    "test": "node test.js"
-  },
-  "keywords": [
-    "api",
-    "ai",
-    "ai-api",
-    "chatgpt",
-    "gpt",
-    "openai",
-    "free-api",
-    "rest-api",
-    "email-verification",
-    "currency-exchange",
-    "qr-code",
-    "ip-geolocation",
-    "url-shortener",
-    "developer-tools",
-    "saas",
-    "ai-chat",
-    "text-generation",
-    "multi-api",
-    "api-marketplace"
-  ],
-  "author": "Amine Chabane <https://github.com/AmineCHABANE>",
-  "license": "MIT",
+  "version": "2.0.0",
+  "description": "Developer-first API platform — AI Chat, Email Verification, Currency Exchange & more. One API key, generous free tier.",
+  "author": "Amine Chabane",
+  "license": "Apache-2.0",
   "homepage": "https://api-amine.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/AmineCHABANE/Amine"
   },
-  "bugs": {
-    "url": "https://github.com/AmineCHABANE/Amine/issues"
+  "keywords": [
+    "api",
+    "api-platform",
+    "developer-tools",
+    "ai-api",
+    "email-verification",
+    "currency-exchange",
+    "rest-api",
+    "saas"
+  ],
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "openai": "^4.77.0",
+    "stripe": "^17.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1"
   },
-  "engines": {
-    "node": ">=18.0.0"
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version"]
   }
 }
