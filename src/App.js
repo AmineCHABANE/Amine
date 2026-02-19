@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// 1. Récupération sécurisée des clés (empêche le crash si elles sont absentes)
+// 1. Récupération des clés
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || '';
 const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
 
@@ -13,12 +13,14 @@ function App() {
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(""); // Nouveau : pour afficher les erreurs à l'écran
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    // Si les variables Vercel n'ont pas été trouvées, on affiche l'écran rouge
+    // Diagnostic précis si les clés manquent
     if (!supabase) {
-      setErrorMsg("ERREUR CRITIQUE : Les variables REACT_APP_SUPABASE_URL ou ANON_KEY sont introuvables ou mal nommées dans Vercel.");
+      const urlStatus = supabaseUrl ? "URL: OK" : "URL: MANQUANTE";
+      const keyStatus = supabaseKey ? "KEY: OK" : "KEY: MANQUANTE";
+      setErrorMsg(`Erreur de Cache Vercel -> ${urlStatus} | ${keyStatus}`);
       return;
     }
     fetchCredits();
@@ -34,13 +36,12 @@ function App() {
   };
 
   const handleWatchAd = async () => {
-    alert("Lecture de la publicité... (Simulé)");
+    alert("Lecture de la publicité...");
     const { data: { session } } = await supabase.auth.getSession();
     await fetch('/api/reward', {
       headers: { 'Authorization': `Bearer ${session?.access_token}` }
     });
     fetchCredits();
-    alert("Bravo ! +10 crédits ajoutés.");
   };
 
   const handleGenerate = async () => {
@@ -60,13 +61,13 @@ function App() {
     fetchCredits();
   };
 
-  // L'ÉCRAN D'ERREUR (Si les clés manquent)
+  // L'ÉCRAN D'ERREUR (Vérification du cache)
   if (errorMsg) {
     return (
       <div style={{ padding: '20px', background: '#ffebee', color: '#c62828', fontFamily: 'sans-serif', margin: '20px', borderRadius: '10px' }}>
-        <h2>🚨 Crash Évité</h2>
+        <h2>🚨 Diagnostic v2</h2>
         <p>{errorMsg}</p>
-        <p><strong>Action requise :</strong> Va dans Vercel > Settings > Environment Variables, vérifie tes clés, puis clique sur "Redeploy".</p>
+        <p><strong>Action :</strong> Va sur Vercel > onglet Deployments > clique sur les 3 points du dernier déploiement > <strong>Redeploy</strong> (décoche "Use existing build cache" si demandé).</p>
       </div>
     );
   }
@@ -74,7 +75,7 @@ function App() {
   // L'ÉCRAN NORMAL
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto', fontFamily: 'sans-serif' }}>
-      <h1>Amine AI Creator</h1>
+      <h1>Amine AI Creator (v2)</h1>
       <div style={{ background: '#f4f4f4', padding: '20px', borderRadius: '10px' }}>
         <p>💰 Crédits : <strong>{credits}</strong></p>
         <button onClick={handleWatchAd} style={{ background: '#FFD700', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', width: '100%', fontWeight: 'bold' }}>
