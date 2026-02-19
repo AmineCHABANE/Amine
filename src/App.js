@@ -50,9 +50,8 @@ const CSS = `
 
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes glow { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-  @keyframes typewriter { from { width: 0; } to { width: 100%; } }
-  @keyframes blink { 50% { border-color: transparent; } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
   .animate { animation: fadeUp 0.6s ease-out forwards; opacity: 0; }
   .delay-1 { animation-delay: 0.1s; }
@@ -74,6 +73,7 @@ const CSS = `
     transition: all 0.2s;
   }
   .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
   
   .btn-primary {
     background: var(--accent);
@@ -84,6 +84,29 @@ const CSS = `
   .btn-primary:hover { 
     background: #0ea472;
     box-shadow: 0 0 20px var(--accent-glow);
+    color: var(--bg);
+  }
+
+  .btn-stripe {
+    background: var(--accent-2);
+    color: white;
+    border-color: var(--accent-2);
+    font-weight: 600;
+  }
+  .btn-stripe:hover {
+    background: #5558e6;
+    box-shadow: 0 0 20px rgba(99,102,241,0.3);
+    color: white;
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--accent-3), #d97706);
+    color: var(--bg);
+    border-color: var(--accent-3);
+    font-weight: 600;
+  }
+  .btn-gold:hover {
+    box-shadow: 0 0 20px rgba(245,158,11,0.3);
     color: var(--bg);
   }
 
@@ -125,6 +148,15 @@ const CSS = `
   }
   .card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
 
+  .toast {
+    position: fixed; top: 20px; right: 20px; z-index: 10000;
+    padding: 16px 24px; border-radius: 8px;
+    font-size: 13px; font-family: var(--font-mono);
+    animation: fadeUp 0.3s ease-out;
+  }
+  .toast-success { background: var(--accent); color: var(--bg); }
+  .toast-error { background: var(--danger); color: white; }
+
   input, textarea {
     font-family: var(--font-mono);
     font-size: 13px;
@@ -145,14 +177,8 @@ const CSS = `
    ═══════════════════════════════════════════ */
 const API_CATALOG = [
   {
-    id: 'chat',
-    name: 'AI Chat',
-    icon: '🧠',
-    method: 'POST',
-    endpoint: '/api/chat',
-    description: 'GPT-4o-mini powered text generation with smart caching',
-    status: 'live',
-    cost: 1,
+    id: 'chat', name: 'AI Chat', icon: '🧠', method: 'POST', endpoint: '/api/chat',
+    description: 'GPT-4o-mini powered text generation with smart caching', status: 'live', cost: 1,
     example: {
       request: `curl -X POST https://api-amine.vercel.app/api/chat \\
   -H "x-api-key: YOUR_KEY" \\
@@ -166,14 +192,8 @@ const API_CATALOG = [
     }
   },
   {
-    id: 'email-verify',
-    name: 'Email Verify',
-    icon: '📧',
-    method: 'GET',
-    endpoint: '/api/email-verify',
-    description: 'Validate emails: syntax, MX records, disposable detection',
-    status: 'coming',
-    cost: 1,
+    id: 'email-verify', name: 'Email Verify', icon: '📧', method: 'GET', endpoint: '/api/email-verify',
+    description: 'Validate emails: syntax, MX records, disposable detection', status: 'coming', cost: 1,
     example: {
       request: `curl "https://api-amine.vercel.app/api/email-verify?email=test@gmail.com" \\
   -H "x-api-key: YOUR_KEY"`,
@@ -186,14 +206,8 @@ const API_CATALOG = [
     }
   },
   {
-    id: 'currency',
-    name: 'Currency Exchange',
-    icon: '💱',
-    method: 'GET',
-    endpoint: '/api/currency',
-    description: 'Real-time exchange rates for 170+ fiat & 50+ crypto',
-    status: 'coming',
-    cost: 1,
+    id: 'currency', name: 'Currency Exchange', icon: '💱', method: 'GET', endpoint: '/api/currency',
+    description: 'Real-time exchange rates for 170+ fiat & 50+ crypto', status: 'coming', cost: 1,
     example: {
       request: `curl "https://api-amine.vercel.app/api/currency?from=EUR&to=USD&amount=100" \\
   -H "x-api-key: YOUR_KEY"`,
@@ -201,20 +215,13 @@ const API_CATALOG = [
   "from": "EUR",
   "to": "USD",
   "rate": 1.0847,
-  "result": 108.47,
-  "timestamp": "2026-02-19T12:00:00Z"
+  "result": 108.47
 }`
     }
   },
   {
-    id: 'qrcode',
-    name: 'QR Code',
-    icon: '📱',
-    method: 'GET',
-    endpoint: '/api/qrcode',
-    description: 'Generate QR codes with custom colors, sizes, and logos',
-    status: 'coming',
-    cost: 1,
+    id: 'qrcode', name: 'QR Code', icon: '📱', method: 'GET', endpoint: '/api/qrcode',
+    description: 'Generate QR codes with custom colors, sizes, and logos', status: 'coming', cost: 1,
     example: {
       request: `curl "https://api-amine.vercel.app/api/qrcode?data=https://example.com&size=300" \\
   -H "x-api-key: YOUR_KEY"`,
@@ -223,14 +230,8 @@ const API_CATALOG = [
     }
   },
   {
-    id: 'ip-geo',
-    name: 'IP Geolocation',
-    icon: '🌍',
-    method: 'GET',
-    endpoint: '/api/ip-geo',
-    description: 'IP to location, VPN/proxy detection, ASN lookup',
-    status: 'coming',
-    cost: 1,
+    id: 'ip-geo', name: 'IP Geolocation', icon: '🌍', method: 'GET', endpoint: '/api/ip-geo',
+    description: 'IP to location, VPN/proxy detection, ASN lookup', status: 'coming', cost: 1,
     example: {
       request: `curl "https://api-amine.vercel.app/api/ip-geo?ip=8.8.8.8" \\
   -H "x-api-key: YOUR_KEY"`,
@@ -238,20 +239,13 @@ const API_CATALOG = [
   "ip": "8.8.8.8",
   "country": "US",
   "city": "Mountain View",
-  "is_vpn": false,
-  "asn": "AS15169 Google LLC"
+  "is_vpn": false
 }`
     }
   },
   {
-    id: 'shorten',
-    name: 'URL Shortener',
-    icon: '🔗',
-    method: 'POST',
-    endpoint: '/api/shorten',
-    description: 'Shorten URLs with click analytics and expiration',
-    status: 'coming',
-    cost: 1,
+    id: 'shorten', name: 'URL Shortener', icon: '🔗', method: 'POST', endpoint: '/api/shorten',
+    description: 'Shorten URLs with click analytics and expiration', status: 'coming', cost: 1,
     example: {
       request: `curl -X POST https://api-amine.vercel.app/api/shorten \\
   -H "x-api-key: YOUR_KEY" \\
@@ -259,7 +253,6 @@ const API_CATALOG = [
   -d '{"url": "https://very-long-url.com/path"}'`,
       response: `{
   "short_url": "https://api-amine.vercel.app/s/x7kQ2",
-  "expires_at": null,
   "clicks": 0
 }`
     }
@@ -267,16 +260,33 @@ const API_CATALOG = [
 ];
 
 const PRICING_TIERS = [
-  { name: 'Free', price: '0', requests: '1,000 / month', features: ['All APIs included', '10 req/min rate limit', 'Community support', 'Dashboard & analytics'], cta: 'Start Free', highlight: false },
-  { name: 'Pro', price: '19', requests: '50,000 / month', features: ['Priority endpoints', '100 req/min rate limit', 'Email support', 'Webhook notifications'], cta: 'Upgrade', highlight: true },
-  { name: 'Enterprise', price: '99', requests: 'Unlimited', features: ['Dedicated endpoints', 'No rate limit', 'Slack support + SLA', 'Custom integrations'], cta: 'Contact Us', highlight: false },
+  { id: 'free', name: 'Free', price: '0', requests: '1,000 / month', features: ['All APIs included', '10 req/min rate limit', 'Community support', 'Dashboard & analytics'], cta: 'Start Free', highlight: false },
+  { id: 'pro', name: 'Pro', price: '19', requests: '50,000 / month', features: ['Priority endpoints', '100 req/min rate limit', 'Email support', 'Webhook notifications'], cta: 'Upgrade to Pro', highlight: true },
+  { id: 'enterprise', name: 'Enterprise', price: '99', requests: 'Unlimited', features: ['Dedicated endpoints', 'No rate limit', 'Slack support + SLA', 'Custom integrations'], cta: 'Go Enterprise', highlight: false },
 ];
+
+const CREDIT_PACKS = [
+  { id: 'credits_5k', name: '5K Credits', credits: 5000, price: '$5', price_cents: 500 },
+  { id: 'credits_25k', name: '25K Credits', credits: 25000, price: '$15', price_cents: 1500 },
+];
+
+
+/* ═══════════════════════════════════════════
+   TOAST NOTIFICATION
+   ═══════════════════════════════════════════ */
+function Toast({ message, type, onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 4000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return <div className={`toast toast-${type}`}>{message}</div>;
+}
 
 
 /* ═══════════════════════════════════════════
    LANDING PAGE
    ═══════════════════════════════════════════ */
-function LandingPage({ onLogin }) {
+function LandingPage({ onGoogleLogin, onEmailLogin }) {
   const [activeApi, setActiveApi] = useState('chat');
   const selected = API_CATALOG.find(a => a.id === activeApi);
 
@@ -291,8 +301,11 @@ function LandingPage({ onLogin }) {
           <a href="#pricing" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: 13 }}>Pricing</a>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn" onClick={onLogin}>Sign In</button>
-          <button className="btn btn-primary" onClick={onLogin}>Get API Key →</button>
+          <button className="btn" onClick={onEmailLogin}>Email Sign In</button>
+          <button className="btn btn-primary" onClick={onGoogleLogin} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Sign in with Google
+          </button>
         </div>
       </nav>
 
@@ -308,11 +321,14 @@ function LandingPage({ onLogin }) {
           AI Chat, Email Verification, Currency Exchange, QR Codes, IP Geolocation — all through a single, fast, well-documented REST API.
         </p>
         <div className="animate delay-3" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={onLogin} style={{ fontSize: 14, padding: '12px 28px' }}>Get Free API Key</button>
+          <button className="btn btn-primary" onClick={onGoogleLogin} style={{ fontSize: 14, padding: '12px 28px', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Get Free API Key
+          </button>
           <a href="#docs" className="btn" style={{ fontSize: 14, padding: '12px 28px', textDecoration: 'none' }}>Read the Docs</a>
+          <button className="btn" onClick={onEmailLogin} style={{ fontSize: 13, padding: '12px 20px' }}>✉ Email Sign In</button>
         </div>
 
-        {/* Quick code example */}
         <div className="animate delay-4" style={{ marginTop: 50, textAlign: 'left' }}>
           <div className="code-block">
             <div style={{ position: 'absolute', top: 12, right: 16, fontSize: 11, color: 'var(--text-dim)' }}>bash</div>
@@ -351,35 +367,27 @@ function LandingPage({ onLogin }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
           {API_CATALOG.map(api => (
-            <div
-              key={api.id}
-              className="card"
-              onClick={() => setActiveApi(api.id)}
-              style={{ cursor: 'pointer', borderColor: activeApi === api.id ? 'var(--accent)' : undefined, position: 'relative' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+            <div key={api.id} className="card" onClick={() => setActiveApi(api.id)}
+              style={{ cursor: 'pointer', borderColor: activeApi === api.id ? 'var(--accent)' : undefined, position: 'relative' }}>
+              {activeApi === api.id && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'var(--accent)' }} />}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                 <span style={{ fontSize: 28 }}>{api.icon}</span>
-                <span className={`tag ${api.status === 'live' ? 'tag-green' : 'tag-amber'}`}>
-                  {api.status === 'live' ? '● Live' : '◌ Coming'}
+                <span className={`tag ${api.status === 'live' ? 'tag-green' : 'tag-amber'}`} style={{ fontSize: 10 }}>
+                  {api.status === 'live' ? '● Live' : '◌ Soon'}
                 </span>
               </div>
-              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, marginBottom: 6 }}>{api.name}</h3>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>{api.description}</p>
-              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{api.name}</h3>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 8 }}>{api.description}</p>
+              <div style={{ display: 'flex', gap: 8 }}>
                 <span className="tag tag-blue">{api.method}</span>
-                <span style={{ fontSize: 11, color: 'var(--text-dim)', alignSelf: 'center' }}>{api.endpoint}</span>
+                <code style={{ fontSize: 11, color: 'var(--text-dim)' }}>{api.endpoint}</code>
               </div>
             </div>
           ))}
         </div>
-      </section>
 
-      {/* API DOCS PREVIEW */}
-      <section id="docs" style={{ padding: '60px 40px 80px', maxWidth: 900, margin: '0 auto' }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, marginBottom: 24 }}>
-          {selected?.icon} {selected?.name} API
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {/* Interactive docs preview */}
+        <div id="docs" style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
             <div style={{ fontSize: 11, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Request</div>
             <div className="code-block" style={{ fontSize: 12 }}>
@@ -399,13 +407,14 @@ function LandingPage({ onLogin }) {
       <section id="pricing" style={{ padding: '80px 40px', maxWidth: 900, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 600, marginBottom: 12 }}>Simple Pricing</h2>
-          <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>Start free. Scale when you need to.</p>
+          <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>Start free. Watch ads for bonus credits. Scale with a plan.</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
           {PRICING_TIERS.map((tier, i) => (
             <div key={i} className="card" style={{ borderColor: tier.highlight ? 'var(--accent)' : undefined, position: 'relative', overflow: 'hidden' }}>
               {tier.highlight && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'var(--accent)' }} />}
+              {tier.highlight && <span className="tag tag-green" style={{ position: 'absolute', top: 12, right: 12, fontSize: 10 }}>POPULAR</span>}
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, marginBottom: 4 }}>{tier.name}</h3>
               <div style={{ marginBottom: 16 }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 700 }}>${tier.price}</span>
@@ -417,11 +426,31 @@ function LandingPage({ onLogin }) {
                   <span style={{ color: 'var(--accent)' }}>✓</span> {f}
                 </div>
               ))}
+              {tier.id === 'free' && (
+                <div style={{ fontSize: 11, color: 'var(--accent-3)', padding: '8px 0', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span>🎬</span> + Watch ads for bonus credits
+                </div>
+              )}
               <button
                 className={`btn ${tier.highlight ? 'btn-primary' : ''}`}
-                onClick={onLogin}
+                onClick={onGoogleLogin}
                 style={{ width: '100%', marginTop: 20 }}
               >{tier.cta}</button>
+            </div>
+          ))}
+        </div>
+
+        {/* Credit Packs */}
+        <div style={{ textAlign: 'center', marginTop: 48, marginBottom: 24 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, fontFamily: 'var(--font-display)' }}>Or buy credit packs — no subscription required</p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, maxWidth: 500, margin: '0 auto' }}>
+          {CREDIT_PACKS.map(pack => (
+            <div key={pack.id} className="card" style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--accent-3)' }}>{pack.name}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', margin: '8px 0' }}>{pack.credits.toLocaleString()} requests</div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{pack.price}</div>
+              <button className="btn btn-gold" onClick={onGoogleLogin} style={{ width: '100%' }}>Buy</button>
             </div>
           ))}
         </div>
@@ -431,6 +460,7 @@ function LandingPage({ onLogin }) {
       <footer style={{ borderTop: '1px solid var(--border)', padding: '32px 40px', textAlign: 'center' }}>
         <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>
           © 2026 AmineAPI — Built by <a href="https://github.com/AmineCHABANE" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Amine Chabane</a>
+          &nbsp;&nbsp;·&nbsp;&nbsp;Payments secured by <span style={{ color: 'var(--accent-2)' }}>Stripe</span>
         </div>
       </footer>
     </div>
@@ -443,6 +473,7 @@ function LandingPage({ onLogin }) {
    ═══════════════════════════════════════════ */
 function Dashboard({ session }) {
   const [credits, setCredits] = useState(0);
+  const [plan, setPlan] = useState('free');
   const [apiKey, setApiKey] = useState('');
   const [logs, setLogs] = useState([]);
   const [testPrompt, setTestPrompt] = useState('');
@@ -450,25 +481,42 @@ function Dashboard({ session }) {
   const [testing, setTesting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [checkoutLoading, setCheckoutLoading] = useState(null);
+  const [rewardLoading, setRewardLoading] = useState(false);
+  const [rewardInfo, setRewardInfo] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => setToast({ message, type });
 
   const fetchData = useCallback(async () => {
-    const { data: p } = await supabase.from('profiles').select('credits').eq('id', session.user.id).single();
+    const { data: p } = await supabase.from('profiles').select('credits, plan').eq('id', session.user.id).single();
     setCredits(p?.credits || 0);
+    setPlan(p?.plan || 'free');
     const { data: k } = await supabase.from('api_keys').select('key_value').eq('user_id', session.user.id).single();
     if (k) setApiKey(k.key_value);
   }, [session]);
 
   const fetchLogs = useCallback(async () => {
     const { data } = await supabase
-      .from('usage_logs')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
+      .from('usage_logs').select('*').eq('user_id', session.user.id)
+      .order('created_at', { ascending: false }).limit(20);
     setLogs(data || []);
   }, [session]);
 
-  useEffect(() => { fetchData(); fetchLogs(); }, [fetchData, fetchLogs]);
+  useEffect(() => {
+    fetchData();
+    fetchLogs();
+    // Check URL for checkout result
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      showToast('Payment successful! Credits added to your account.');
+      window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(fetchData, 2000); // Give webhook time to process
+    } else if (params.get('checkout') === 'cancelled') {
+      showToast('Checkout cancelled.', 'error');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [fetchData, fetchLogs]);
 
   const generateKey = async () => {
     const array = new Uint8Array(24);
@@ -504,21 +552,84 @@ function Dashboard({ session }) {
     setTesting(false);
   };
 
+  // ─── Stripe Checkout ───
+  const handleCheckout = async (planId) => {
+    setCheckoutLoading(planId);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan_id: planId,
+          user_id: session.user.id,
+          user_email: session.user.email,
+        })
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast(data.error || 'Checkout failed', 'error');
+      }
+    } catch (e) {
+      showToast('Checkout error: ' + e.message, 'error');
+    }
+    setCheckoutLoading(null);
+  };
+
+  // ─── Rewarded Video Ad ───
+  const handleReward = async () => {
+    setRewardLoading(true);
+    try {
+      // Simulate rewarded video ad (30 seconds)
+      // In production, replace with Google AdMob / ironSource SDK callback
+      showToast('📺 Loading rewarded ad...');
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate ad view
+
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const res = await fetch('/api/reward', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentSession.access_token}`,
+        }
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setCredits(data.credits_balance);
+        setRewardInfo({ remaining: data.rewards_remaining_today });
+        showToast(`+${data.credits_granted} credits earned! ${data.rewards_remaining_today} rewards left today.`);
+      } else {
+        showToast(data.error || data.message || 'Reward failed', 'error');
+      }
+    } catch (e) {
+      showToast('Reward error: ' + e.message, 'error');
+    }
+    setRewardLoading(false);
+  };
+
+  const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+  const planColor = plan === 'enterprise' ? 'var(--accent-3)' : plan === 'pro' ? 'var(--accent-2)' : 'var(--accent)';
+
   return (
     <div>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
       {/* NAV */}
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 32px', borderBottom: '1px solid var(--border)', background: 'rgba(7,8,10,0.95)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 16, color: 'var(--accent)' }}>⚡ AmineAPI</span>
-          {['overview', 'playground', 'docs'].map(tab => (
+          {['overview', 'playground', 'billing', 'docs'].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
               background: 'none', border: 'none', color: activeTab === tab ? 'var(--accent)' : 'var(--text-dim)',
               cursor: 'pointer', fontSize: 13, fontFamily: 'var(--font-mono)', textTransform: 'capitalize',
               borderBottom: activeTab === tab ? '2px solid var(--accent)' : '2px solid transparent', padding: '8px 0'
-            }}>{tab}</button>
+            }}>{tab === 'billing' ? '💳 Billing' : tab}</button>
           ))}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span className="tag" style={{ background: `${planColor}22`, color: planColor, border: `1px solid ${planColor}44` }}>{planLabel}</span>
           <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>{session.user.email}</span>
           <button className="btn" onClick={() => supabase.auth.signOut()} style={{ padding: '6px 14px', fontSize: 12 }}>Sign Out</button>
         </div>
@@ -526,14 +637,14 @@ function Dashboard({ session }) {
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px' }}>
 
-        {/* OVERVIEW TAB */}
+        {/* ═══ OVERVIEW TAB ═══ */}
         {activeTab === 'overview' && (
           <div>
             {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
               <div className="card">
                 <div style={{ fontSize: 11, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Credits</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 700, color: credits > 10 ? 'var(--accent)' : 'var(--danger)' }}>{credits}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 700, color: credits > 10 ? 'var(--accent)' : 'var(--danger)' }}>{credits.toLocaleString()}</div>
               </div>
               <div className="card">
                 <div style={{ fontSize: 11, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>API Calls Today</div>
@@ -543,7 +654,27 @@ function Dashboard({ session }) {
               </div>
               <div className="card">
                 <div style={{ fontSize: 11, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Plan</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 700 }}>Free</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 700, color: planColor }}>{planLabel}</div>
+              </div>
+              <div className="card" style={{ cursor: 'pointer', borderColor: 'var(--accent-3)' }} onClick={() => setActiveTab('billing')}>
+                <div style={{ fontSize: 11, color: 'var(--accent-3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Need Credits?</div>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Buy packs or watch ads →</div>
+              </div>
+            </div>
+
+            {/* Quick free credits via rewarded ad */}
+            <div className="card" style={{ marginBottom: 24, borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, var(--surface), rgba(245,158,11,0.05))' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontSize: 15, fontWeight: 600 }}>🎬 Watch & Earn</span>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                    Watch a short video ad → get 3 free credits. 
+                    {rewardInfo ? ` ${rewardInfo.remaining} left today.` : ' Up to 5× per day (15 credits free/day).'}
+                  </p>
+                </div>
+                <button className="btn btn-gold" onClick={handleReward} disabled={rewardLoading} style={{ minWidth: 140, opacity: rewardLoading ? 0.6 : 1 }}>
+                  {rewardLoading ? '⏳ Watching...' : '▶ Watch Ad (+3)'}
+                </button>
               </div>
             </div>
 
@@ -598,7 +729,7 @@ function Dashboard({ session }) {
           </div>
         )}
 
-        {/* PLAYGROUND TAB */}
+        {/* ═══ PLAYGROUND TAB ═══ */}
         {activeTab === 'playground' && (
           <div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, marginBottom: 8 }}>🧪 API Playground</h2>
@@ -617,12 +748,22 @@ function Dashboard({ session }) {
                 style={{ marginBottom: 12, resize: 'vertical' }}
               />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>Cost: 1 credit · Balance: {credits}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>Cost: 1 credit · Balance: {credits.toLocaleString()}</span>
                 <button className="btn btn-primary" onClick={testApi} disabled={testing || !testPrompt || credits <= 0} style={{ opacity: testing ? 0.6 : 1 }}>
                   {testing ? '⏳ Running...' : '▶ Send Request'}
                 </button>
               </div>
             </div>
+
+            {credits <= 0 && (
+              <div className="card" style={{ borderColor: 'var(--danger)', marginBottom: 16, textAlign: 'center', padding: 20 }}>
+                <p style={{ color: 'var(--danger)', fontWeight: 600, marginBottom: 12 }}>No credits remaining</p>
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                  <button className="btn btn-gold" onClick={handleReward} disabled={rewardLoading}>🎬 Watch Ad (+3 free)</button>
+                  <button className="btn btn-stripe" onClick={() => setActiveTab('billing')}>💳 Buy Credits</button>
+                </div>
+              </div>
+            )}
 
             {testResult && (
               <div className="card" style={{ borderColor: testResult.error ? 'var(--danger)' : 'var(--accent)' }}>
@@ -637,7 +778,118 @@ function Dashboard({ session }) {
           </div>
         )}
 
-        {/* DOCS TAB */}
+        {/* ═══ BILLING TAB ═══ */}
+        {activeTab === 'billing' && (
+          <div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, marginBottom: 8 }}>💳 Billing & Credits</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 32 }}>Upgrade your plan, buy credit packs, or earn free credits.</p>
+
+            {/* Current Status */}
+            <div className="card" style={{ marginBottom: 32, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Current Plan</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: planColor }}>{planLabel}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: 'var(--text-dim)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Credits Balance</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, color: credits > 10 ? 'var(--accent)' : 'var(--danger)' }}>{credits.toLocaleString()}</div>
+              </div>
+            </div>
+
+            {/* Free: Rewarded Ads */}
+            <div style={{ marginBottom: 32 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                🎬 Free Credits — Watch & Earn
+              </h3>
+              <div className="card" style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, var(--surface), rgba(245,158,11,0.04))' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <p style={{ fontSize: 13, marginBottom: 4 }}>Watch a short video → <strong style={{ color: 'var(--accent-3)' }}>+3 credits</strong></p>
+                    <p style={{ fontSize: 11, color: 'var(--text-dim)' }}>Up to 5 times per day (15 free credits/day) · 2 min cooldown</p>
+                  </div>
+                  <button className="btn btn-gold" onClick={handleReward} disabled={rewardLoading} style={{ minWidth: 150 }}>
+                    {rewardLoading ? '⏳ Loading ad...' : '▶ Watch Ad (+3)'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Credit Packs (one-time) */}
+            <div style={{ marginBottom: 32 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                ⚡ Credit Packs — Pay as you go
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                {CREDIT_PACKS.map(pack => (
+                  <div key={pack.id} className="card" style={{ textAlign: 'center' }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--accent-3)' }}>{pack.name}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', margin: '8px 0' }}>{pack.credits.toLocaleString()} requests</div>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{pack.price}</div>
+                    <div style={{ fontSize: 11, color: 'var(--accent)', marginBottom: 12 }}>
+                      ${(pack.price_cents / pack.credits * 100).toFixed(2)} per 100 requests
+                    </div>
+                    <button
+                      className="btn btn-gold"
+                      onClick={() => handleCheckout(pack.id)}
+                      disabled={checkoutLoading === pack.id}
+                      style={{ width: '100%' }}
+                    >
+                      {checkoutLoading === pack.id ? '⏳ Redirecting...' : `Buy ${pack.price}`}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Subscription Plans */}
+            <div>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                🚀 Monthly Plans — Best value
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                {PRICING_TIERS.map((tier) => {
+                  const isCurrent = plan === tier.id;
+                  return (
+                    <div key={tier.id} className="card" style={{
+                      borderColor: isCurrent ? planColor : tier.highlight ? 'var(--accent)' : undefined,
+                      position: 'relative', overflow: 'hidden',
+                      opacity: isCurrent ? 0.7 : 1,
+                    }}>
+                      {tier.highlight && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'var(--accent)' }} />}
+                      {isCurrent && <span className="tag tag-green" style={{ position: 'absolute', top: 12, right: 12, fontSize: 10 }}>CURRENT</span>}
+                      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, marginBottom: 4 }}>{tier.name}</h3>
+                      <div style={{ marginBottom: 12 }}>
+                        <span style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700 }}>${tier.price}</span>
+                        <span style={{ color: 'var(--text-dim)', fontSize: 12 }}>/mo</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--accent)', marginBottom: 16, fontWeight: 500 }}>{tier.requests}</div>
+                      {tier.features.map((f, fi) => (
+                        <div key={fi} style={{ fontSize: 11, color: 'var(--text-muted)', padding: '5px 0', borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ color: 'var(--accent)' }}>✓</span> {f}
+                        </div>
+                      ))}
+                      <button
+                        className={`btn ${tier.highlight && !isCurrent ? 'btn-stripe' : ''}`}
+                        onClick={() => tier.id !== 'free' && !isCurrent && handleCheckout(tier.id)}
+                        disabled={isCurrent || tier.id === 'free' || checkoutLoading === tier.id}
+                        style={{ width: '100%', marginTop: 16 }}
+                      >
+                        {isCurrent ? '✓ Current Plan' : checkoutLoading === tier.id ? '⏳ Redirecting...' : tier.id === 'free' ? 'Free Forever' : tier.cta}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Payment Security Note */}
+            <div style={{ textAlign: 'center', marginTop: 32, fontSize: 12, color: 'var(--text-dim)' }}>
+              🔒 All payments are processed securely by <span style={{ color: 'var(--accent-2)' }}>Stripe</span>. We never see your card details.
+            </div>
+          </div>
+        )}
+
+        {/* ═══ DOCS TAB ═══ */}
         {activeTab === 'docs' && (
           <div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 600, marginBottom: 8 }}>📚 API Documentation</h2>
@@ -674,7 +926,6 @@ function Dashboard({ session }) {
               </div>
             ))}
 
-            {/* Error Codes */}
             <div className="card">
               <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Error Codes</h3>
               {[
@@ -716,7 +967,15 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = async () => {
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) alert(error.message);
+  };
+
+  const handleEmailLogin = async () => {
     const email = prompt('Enter your email to sign in:');
     if (!email) return;
     const { error } = await supabase.auth.signInWithOtp({ email });
@@ -734,7 +993,7 @@ function App() {
     <>
       <style>{CSS}</style>
       <div className="grain" />
-      {session ? <Dashboard session={session} /> : <LandingPage onLogin={handleLogin} />}
+      {session ? <Dashboard session={session} /> : <LandingPage onGoogleLogin={handleGoogleLogin} onEmailLogin={handleEmailLogin} />}
     </>
   );
 }
