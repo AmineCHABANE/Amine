@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto'; // Pour créer le hash du prompt
+import crypto from 'crypto';
 
 const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
@@ -8,29 +8,26 @@ export default async function handler(req, res) {
 
   const { prompt } = req.body;
   const apiKey = req.headers['x-api-key'];
-
   if (!prompt || !apiKey) return res.status(400).json({ error: 'Données manquantes' });
 
-  // Générer un ID unique pour ce texte (Hash)
   const hash = crypto.createHash('md5').update(prompt.toLowerCase().trim()).digest('hex');
 
   try {
-    // 1. Vérification Clé & Crédits
+    // Vérification de la clé et de l'utilisateur
     const { data: keyData } = await supabase.from('api_keys').select('user_id').eq('key_value', apiKey).single();
-    if (!keyData) return res.status(403).json({ error: 'Clé invalide' });
+    if (!keyData) return res.status(403).json({ error: 'Clé API invalide' });
 
     const { data: profile } = await supabase.from('profiles').select('credits').eq('id', keyData.user_id).single();
-    if (!profile || profile.credits <= 0) return res.status(402).json({ error: 'Solde épuisé' });
+    if (!profile || profile.credits <= 0) return res.status(402).json({ error: 'Crédits insuffisants. Rechargez sur le site.' });
 
-    // 2. OPTIMISATION 1 : Vérifier le Cache (Gain de temps et d'argent)
-    const { data: cachedResponse } = await supabase.from('ai_cache').select('response_text').eq('prompt_hash', hash).single();
-
-    if (cachedResponse) {
+    // OPTIMISATION : Vérification du Cache
+    const { data: cached } = await supabase.from('ai_cache').select('response_text').eq('prompt_hash', hash).single();
+    if (cached) {
       await supabase.rpc('decrement_credits', { user_id_input: keyData.user_id });
-      return res.status(200).json({ result: cachedResponse.response_text, source: 'cache' });
+      return res.status(200).json({ result: cached.response_text, info: 'Serveur optimisé (Cache)' });
     }
 
-    // 3. Appel OpenAI (Modèle GPT-4o-mini : Plus performant et moins cher)
+    // Appel OpenAI (Modèle économique GPT-4o-mini)
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
@@ -42,17 +39,15 @@ export default async function handler(req, res) {
     });
 
     const aiData = await aiRes.json();
-    const finalResult = aiData.choices[0].message.content;
+    const resultText = aiData.choices[0].message.content;
 
-    // 4. Sauvegarder dans le cache pour la prochaine fois
-    await supabase.from('ai_cache').insert([{ prompt_hash: hash, response_text: finalResult }]);
-
-    // 5. Débit du crédit
+    // Mise en cache + Débit
+    await supabase.from('ai_cache').insert([{ prompt_hash: hash, response_text: resultText }]);
     await supabase.rpc('decrement_credits', { user_id_input: keyData.user_id });
 
-    return res.status(200).json({ result: finalResult, source: 'openai' });
+    return res.status(200).json({ result: resultText });
 
-  } catch (err) {
-    return res.status(500).json({ error: 'Erreur technique' });
+  } catch (error) {
+    return res.status(500).json({ error: 'Erreur technique backend' });
   }
 }
