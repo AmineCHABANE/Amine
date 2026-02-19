@@ -7,9 +7,8 @@ function App() {
   const [session, setSession] = useState(null);
   const [credits, setCredits] = useState(0);
   const [apiKey, setApiKey] = useState("");
-  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -21,80 +20,64 @@ function App() {
   const fetchData = async (user) => {
     const { data: profile } = await supabase.from('profiles').select('credits').eq('id', user.id).single();
     setCredits(profile?.credits || 0);
-    const { data: keyData } = await supabase.from('api_keys').select('key_value').eq('user_id', user.id).single();
-    if (keyData) setApiKey(keyData.key_value);
+    const { data: key } = await supabase.from('api_keys').select('key_value').eq('user_id', user.id).single();
+    if (key) setApiKey(key.key_value);
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(apiKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const generateNewKey = async () => {
-    setLoading(true);
-    const newKey = `amine_live_${Math.random().toString(36).substring(2, 15)}`;
-    const { error } = await supabase.from('api_keys').insert([{ user_id: session.user.id, key_value: newKey }]);
-    if (error) alert("Erreur : Clé déjà existante.");
-    else setApiKey(newKey);
-    setLoading(false);
+  const handleAds = async (type) => {
+    if (type === 'standard') {
+      window.open("https://ton-lien-monetag.com", "_blank"); // REMPLACE ICI
+      setLoading(true);
+      await fetch('/api/reward', { 
+        method: 'POST', 
+        headers: { 'Authorization': `Bearer ${session?.access_token}` } 
+      });
+      fetchData(session.user);
+      setLoading(false);
+    } else {
+      alert("Format Premium Google bientôt disponible !");
+    }
   };
 
   if (!session) return (
     <div style={{ padding: '50px', textAlign: 'center', fontFamily: 'sans-serif' }}>
-      <h1>Amine API Gateway</h1>
-      <p>Accès IA gratuit pour développeurs</p>
-      <input type="email" placeholder="votre@email.com" value={email} onChange={e => setEmail(e.target.value)} style={{ padding: '12px', width: '250px', borderRadius: '5px', border: '1px solid #ccc' }} />
-      <button onClick={() => supabase.auth.signInWithOtp({ email })} style={{ padding: '12px 20px', marginLeft: '10px', background: '#0070f3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Connexion</button>
+      <h1>Amine API</h1>
+      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={{ padding: '10px' }} />
+      <button onClick={() => supabase.auth.signInWithOtp({ email })} style={{ padding: '10px', background: 'black', color: 'white' }}>Accéder</button>
     </div>
   );
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto', fontFamily: 'system-ui' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2>Dashboard Amine API</h2>
-        <button onClick={() => supabase.auth.signOut()} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer' }}>Déconnexion</button>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto', fontFamily: 'sans-serif' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <h2>Espace Créateur</h2>
+        <button onClick={() => supabase.auth.signOut()}>Quitter</button>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
-        {/* COMPTEUR DE CRÉDITS */}
-        <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #eaeaea', background: '#fafafa' }}>
-          <h3>Statut du compte</h3>
-          <div style={{ fontSize: '2em', fontWeight: 'bold' }}>{credits} <span style={{ fontSize: '0.4em' }}>crédits</span></div>
-          <p style={{ color: credits > 0 ? 'green' : 'red', fontWeight: 'bold' }}>● {credits > 0 ? 'Clé Active' : 'Clé Suspendue'}</p>
-          <button style={{ width: '100%', padding: '15px', marginTop: '10px', background: '#FFD700', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
-            📺 Recharger via Publicité
-          </button>
-        </div>
-
-        {/* GESTION CLÉ API */}
-        <div style={{ padding: '20px', borderRadius: '12px', border: '1px solid #eaeaea' }}>
-          <h3>Ma Clé API</h3>
-          {apiKey ? (
-            <div>
-              <div style={{ background: '#f0f0f0', padding: '10px', borderRadius: '5px', wordBreak: 'break-all', fontFamily: 'monospace', marginBottom: '10px' }}>{apiKey}</div>
-              <button onClick={copyToClipboard} style={{ width: '100%', padding: '10px' }}>{copied ? "✅ Copié !" : "📋 Copier la clé"}</button>
-            </div>
-          ) : (
-            <button onClick={generateNewKey} style={{ width: '100%', padding: '15px', background: '#000', color: '#fff', borderRadius: '8px' }}>Générer ma clé</button>
-          )}
-        </div>
+      <div style={{ background: '#f4f4f4', padding: '20px', borderRadius: '10px', marginTop: '20px' }}>
+        <h3>💰 Crédits : {credits}</h3>
+        <button onClick={() => handleAds('standard')} style={{ width: '100%', padding: '10px', background: '#000', color: '#fff', borderRadius: '5px' }}>
+          ⚡ Recharge Rapide (+5)
+        </button>
       </div>
 
-      {/* DOCUMENTATION */}
-      <div style={{ marginTop: '40px' }}>
-        <h3>🚀 Intégration Rapide</h3>
-        <p>Utilisez cet endpoint dans votre code :</p>
-        <div style={{ background: '#1e1e1e', color: '#fff', padding: '20px', borderRadius: '8px', overflowX: 'auto' }}>
-          <pre>{`// Endpoint : POST https://api-amine.vercel.app/api/v1/chat
-// Header : x-api-key: ${apiKey || 'VOTRE_CLE'}
+      <div style={{ marginTop: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '10px' }}>
+        <h3>🔑 Ta Clé API</h3>
+        <code style={{ background: '#eee', padding: '5px', display: 'block' }}>{apiKey || "Générez votre clé..."}</code>
+        {!apiKey && <button onClick={async () => {
+          const newK = `amine_live_${Math.random().toString(36).substring(7)}`;
+          await supabase.from('api_keys').insert([{ user_id: session.user.id, key_value: newK }]);
+          setApiKey(newK);
+        }} style={{ width: '100%', marginTop: '10px' }}>Générer</button>}
+      </div>
 
-fetch('https://api-amine.vercel.app/api/v1/chat', {
+      <div style={{ marginTop: '30px', background: '#1e1e1e', color: '#fff', padding: '15px', borderRadius: '8px' }}>
+        <h4>Documentation Express</h4>
+        <pre style={{ fontSize: '12px' }}>{`fetch('https://api-amine.vercel.app/api/v1/chat', {
+  headers: { 'x-api-key': '${apiKey || 'TA_CLE'}' },
   method: 'POST',
-  headers: { 'Content-Type': 'application/json', 'x-api-key': '${apiKey || 'VOTRE_CLE'}' },
-  body: JSON.stringify({ prompt: 'Bonjour !' })
+  body: JSON.stringify({ prompt: '...' })
 })`}</pre>
-        </div>
       </div>
     </div>
   );
