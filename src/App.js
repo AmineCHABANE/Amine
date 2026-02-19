@@ -580,23 +580,27 @@ function Dashboard({ session }) {
   const [adModalOpen, setAdModalOpen] = useState(false);
   const [adCountdown, setAdCountdown] = useState(30);
   const [adWatched, setAdWatched] = useState(false);
+  const [adLoaded, setAdLoaded] = useState(false);
+  const [adFailed, setAdFailed] = useState(false);
   const [claimingReward, setClaimingReward] = useState(false);
 
   const handleReward = () => {
     setAdModalOpen(true);
     setAdCountdown(30);
     setAdWatched(false);
+    setAdLoaded(false);
+    setAdFailed(false);
   };
 
-  // Countdown timer when modal is open
+  // Countdown timer — only ticks when ad is loaded
   useEffect(() => {
-    if (!adModalOpen || adCountdown <= 0) {
-      if (adCountdown <= 0) setAdWatched(true);
+    if (!adModalOpen || !adLoaded || adCountdown <= 0) {
+      if (adCountdown <= 0 && adLoaded) setAdWatched(true);
       return;
     }
     const timer = setTimeout(() => setAdCountdown(c => c - 1), 1000);
     return () => clearTimeout(timer);
-  }, [adModalOpen, adCountdown]);
+  }, [adModalOpen, adCountdown, adLoaded]);
 
   // Load ads when modal opens — AdSense primary, Adsterra fallback
   useEffect(() => {
@@ -612,11 +616,9 @@ function Dashboard({ session }) {
       const container = document.getElementById('adsterra-reward-container');
       if (!container) return;
 
-      // Hide fallback message
       const fallbackMsg = document.getElementById('ad-fallback-msg');
       if (fallbackMsg) fallbackMsg.style.display = 'none';
 
-      // Inject atOptions config
       window.atOptions = {
         key: '4597b34efe7f59ee1a483dc7cb84fc78',
         format: 'iframe',
@@ -625,14 +627,40 @@ function Dashboard({ session }) {
         params: {}
       };
 
-      // Inject invoke.js script
       const script = document.createElement('script');
       script.src = 'https://www.highperformanceformat.com/4597b34efe7f59ee1a483dc7cb84fc78/invoke.js';
       script.async = true;
       container.appendChild(script);
     }, 1500);
 
-    return () => clearTimeout(adsterraTimer);
+    // Check every second if an ad iframe/element appeared
+    const adCheckInterval = setInterval(() => {
+      const container = document.getElementById('adsterra-reward-container');
+      if (!container) return;
+
+      const hasAdsterraIframe = container.querySelector('iframe');
+      const adsenseSlot = document.querySelector('.adsbygoogle[data-ad-status="filled"]');
+
+      if (hasAdsterraIframe || adsenseSlot) {
+        setAdLoaded(true);
+        setAdFailed(false);
+        clearInterval(adCheckInterval);
+      }
+    }, 1000);
+
+    // If no ad after 10 seconds, mark as failed
+    const failTimer = setTimeout(() => {
+      setAdLoaded(loaded => {
+        if (!loaded) setAdFailed(true);
+        return loaded;
+      });
+    }, 10000);
+
+    return () => {
+      clearTimeout(adsterraTimer);
+      clearInterval(adCheckInterval);
+      clearTimeout(failTimer);
+    };
   }, [adModalOpen]);
 
   const claimReward = async () => {
@@ -682,13 +710,12 @@ function Dashboard({ session }) {
             borderRadius: 16, padding: 32, maxWidth: 500, width: '90%',
             textAlign: 'center', position: 'relative',
           }}>
-            {adWatched && (
-              <button onClick={() => setAdModalOpen(false)} style={{
-                position: 'absolute', top: 12, right: 16,
-                background: 'none', border: 'none', color: 'var(--text-dim)',
-                cursor: 'pointer', fontSize: 18,
-              }}>✕</button>
-            )}
+            {/* Close button — always available */}
+            <button onClick={() => setAdModalOpen(false)} style={{
+              position: 'absolute', top: 12, right: 16,
+              background: 'none', border: 'none', color: 'var(--text-dim)',
+              cursor: 'pointer', fontSize: 18,
+            }}>✕</button>
 
             <div style={{ fontSize: 28, marginBottom: 8 }}>🎬</div>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, marginBottom: 4 }}>
@@ -737,27 +764,46 @@ function Dashboard({ session }) {
               <div>
                 <div style={{
                   width: 64, height: 64, borderRadius: '50%',
-                  border: '3px solid var(--accent-3)',
+                  border: `3px solid ${adLoaded ? 'var(--accent-3)' : 'var(--border)'}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 12px',
                   fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700,
-                  color: 'var(--accent-3)',
+                  color: adLoaded ? 'var(--accent-3)' : 'var(--text-dim)',
                 }}>
-                  {adCountdown}
+                  {adLoaded ? adCountdown : '⏸'}
                 </div>
                 <p style={{ fontSize: 12, color: 'var(--text-dim)' }}>
-                  Please wait {adCountdown} seconds...
+                  {adLoaded 
+                    ? `Please wait ${adCountdown} seconds...` 
+                    : 'Waiting for ad to load...'}
                 </p>
                 <div style={{
                   width: '100%', height: 4, background: 'var(--border)',
                   borderRadius: 2, marginTop: 12, overflow: 'hidden',
                 }}>
                   <div style={{
-                    width: `${((30 - adCountdown) / 30) * 100}%`,
+                    width: adLoaded ? `${((30 - adCountdown) / 30) * 100}%` : '0%',
                     height: '100%', background: 'var(--accent-3)',
                     borderRadius: 2, transition: 'width 1s linear',
                   }} />
                 </div>
+                {/* If 10s passed and still no ad, show error */}
+                {adFailed && (
+                  <div style={{ marginTop: 16, padding: 12, background: 'rgba(239,68,68,0.1)', borderRadius: 8, border: '1px solid rgba(239,68,68,0.2)' }}>
+                    <p style={{ fontSize: 12, color: 'var(--danger)', fontWeight: 600 }}>Ad failed to load — no credits available</p>
+                    <p style={{ fontSize: 11, color: 'var(--text-dim)', marginTop: 4 }}>
+                      Disable your ad blocker and try again, or buy a credit pack instead.
+                    </p>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 12, justifyContent: 'center' }}>
+                      <button className="btn" onClick={() => { setAdModalOpen(false); setTimeout(handleReward, 300); }} style={{ fontSize: 11, padding: '6px 14px' }}>
+                        🔄 Retry
+                      </button>
+                      <button className="btn btn-stripe" onClick={() => { setAdModalOpen(false); setActiveTab('billing'); }} style={{ fontSize: 11, padding: '6px 14px' }}>
+                        💳 Buy Credits
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <button
