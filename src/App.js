@@ -93,6 +93,46 @@ function App() {
       </div>
 
       <button onClick={() => supabase.auth.signOut()} style={{ marginTop: '30px', background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>Se déconnecter</button>
+            {/* SECTION DOCUMENTATION POUR LES CRÉATEURS */}
+<div style={{ marginTop: '40px', borderTop: '2px solid #eee', paddingTop: '20px' }}>
+  <h2 style={{ fontSize: '1.2em' }}>📚 Documentation API</h2>
+  <p style={{ fontSize: '0.9em', color: '#555' }}>
+    Copiez ce code dans votre projet pour utiliser l'IA gratuitement :
+  </p>
+  
+  <div style={{ 
+    background: '#1e1e1e', 
+    color: '#d4d4d4', 
+    padding: '15px', 
+    borderRadius: '8px', 
+    fontSize: '0.85em', 
+    overflowX: 'auto',
+    fontFamily: 'monospace',
+    textAlign: 'left'
+  }}>
+    <pre style={{ margin: 0 }}>
+{`async function appelAmineAI(prompt) {
+  const res = await fetch('https://api-amine.vercel.app/api/v1/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': '${apiKey || 'VOTRE_CLE_ICI'}'
+    },
+    body: JSON.stringify({ prompt })
+  });
+
+  const data = await res.json();
+  if (res.status === 402) alert(data.message);
+  return data.result;
+}`}
+    </pre>
+  </div>
+  
+  <p style={{ fontSize: '0.8em', color: '#888', marginTop: '10px' }}>
+    💡 Note : Si vous recevez une erreur 402, revenez ici pour recharger vos crédits via la publicité.
+  </p>
+</div>
+
     </div>
   );
 }
