@@ -482,7 +482,6 @@ function Dashboard({ session }) {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [checkoutLoading, setCheckoutLoading] = useState(null);
-  const [rewardLoading, setRewardLoading] = useState(false);
   const [rewardInfo, setRewardInfo] = useState(null);
   const [toast, setToast] = useState(null);
 
@@ -577,15 +576,41 @@ function Dashboard({ session }) {
     setCheckoutLoading(null);
   };
 
-  // ─── Rewarded Video Ad ───
-  const handleReward = async () => {
-    setRewardLoading(true);
-    try {
-      // Simulate rewarded video ad (30 seconds)
-      // In production, replace with Google AdMob / ironSource SDK callback
-      showToast('📺 Loading rewarded ad...');
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate ad view
+  // ─── Rewarded Ad Modal ───
+  const [adModalOpen, setAdModalOpen] = useState(false);
+  const [adCountdown, setAdCountdown] = useState(30);
+  const [adWatched, setAdWatched] = useState(false);
+  const [claimingReward, setClaimingReward] = useState(false);
 
+  const handleReward = () => {
+    setAdModalOpen(true);
+    setAdCountdown(30);
+    setAdWatched(false);
+  };
+
+  // Countdown timer when modal is open
+  useEffect(() => {
+    if (!adModalOpen || adCountdown <= 0) {
+      if (adCountdown <= 0) setAdWatched(true);
+      return;
+    }
+    const timer = setTimeout(() => setAdCountdown(c => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [adModalOpen, adCountdown]);
+
+  // Load AdSense ad when modal opens
+  useEffect(() => {
+    if (adModalOpen) {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) { /* ad blocker or not loaded */ }
+    }
+  }, [adModalOpen]);
+
+  const claimReward = async () => {
+    if (!adWatched) return;
+    setClaimingReward(true);
+    try {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       const res = await fetch('/api/reward', {
         method: 'POST',
@@ -600,13 +625,14 @@ function Dashboard({ session }) {
         setCredits(data.credits_balance);
         setRewardInfo({ remaining: data.rewards_remaining_today });
         showToast(`+${data.credits_granted} credits earned! ${data.rewards_remaining_today} rewards left today.`);
+        setAdModalOpen(false);
       } else {
         showToast(data.error || data.message || 'Reward failed', 'error');
       }
     } catch (e) {
       showToast('Reward error: ' + e.message, 'error');
     }
-    setRewardLoading(false);
+    setClaimingReward(false);
   };
 
   const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
@@ -615,6 +641,96 @@ function Dashboard({ session }) {
   return (
     <div>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {/* ═══ AD MODAL ═══ */}
+      {adModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.85)', zIndex: 10001,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: 'var(--surface)', border: '1px solid var(--border)',
+            borderRadius: 16, padding: 32, maxWidth: 500, width: '90%',
+            textAlign: 'center', position: 'relative',
+          }}>
+            {/* Close (only after ad watched) */}
+            {adWatched && (
+              <button onClick={() => setAdModalOpen(false)} style={{
+                position: 'absolute', top: 12, right: 16,
+                background: 'none', border: 'none', color: 'var(--text-dim)',
+                cursor: 'pointer', fontSize: 18,
+              }}>✕</button>
+            )}
+
+            <div style={{ fontSize: 28, marginBottom: 8 }}>🎬</div>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 600, marginBottom: 4 }}>
+              Watch Ad → Earn 3 Credits
+            </h3>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
+              View the ad below for 30 seconds to claim your free credits.
+            </p>
+
+            {/* AdSense Display Ad */}
+            <div style={{
+              background: 'var(--surface-2)', border: '1px solid var(--border)',
+              borderRadius: 8, minHeight: 250, marginBottom: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden',
+            }}>
+              <ins className="adsbygoogle"
+                style={{ display: 'block', width: '100%', height: 250 }}
+                data-ad-client="ca-pub-7526517043500512"
+                data-ad-slot="auto"
+                data-ad-format="rectangle"
+                data-full-width-responsive="true"
+              />
+            </div>
+
+            {/* Countdown / Claim */}
+            {!adWatched ? (
+              <div>
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  border: '3px solid var(--accent-3)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 12px',
+                  fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700,
+                  color: 'var(--accent-3)',
+                }}>
+                  {adCountdown}
+                </div>
+                <p style={{ fontSize: 12, color: 'var(--text-dim)' }}>
+                  Please wait {adCountdown} seconds...
+                </p>
+                {/* Progress bar */}
+                <div style={{
+                  width: '100%', height: 4, background: 'var(--border)',
+                  borderRadius: 2, marginTop: 12, overflow: 'hidden',
+                }}>
+                  <div style={{
+                    width: `${((30 - adCountdown) / 30) * 100}%`,
+                    height: '100%', background: 'var(--accent-3)',
+                    borderRadius: 2, transition: 'width 1s linear',
+                  }} />
+                </div>
+              </div>
+            ) : (
+              <button
+                className="btn btn-primary"
+                onClick={claimReward}
+                disabled={claimingReward}
+                style={{
+                  width: '100%', fontSize: 15, padding: '14px 28px',
+                  animation: 'pulse 1.5s ease-in-out infinite',
+                }}
+              >
+                {claimingReward ? '⏳ Claiming...' : '✓ Claim +3 Free Credits!'}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* NAV */}
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 32px', borderBottom: '1px solid var(--border)', background: 'rgba(7,8,10,0.95)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 }}>
@@ -672,8 +788,8 @@ function Dashboard({ session }) {
                     {rewardInfo ? ` ${rewardInfo.remaining} left today.` : ' Up to 5× per day (15 credits free/day).'}
                   </p>
                 </div>
-                <button className="btn btn-gold" onClick={handleReward} disabled={rewardLoading} style={{ minWidth: 140, opacity: rewardLoading ? 0.6 : 1 }}>
-                  {rewardLoading ? '⏳ Watching...' : '▶ Watch Ad (+3)'}
+                <button className="btn btn-gold" onClick={handleReward} style={{ minWidth: 140 }}>
+                  {'▶ Watch Ad (+3)'}
                 </button>
               </div>
             </div>
@@ -759,7 +875,7 @@ function Dashboard({ session }) {
               <div className="card" style={{ borderColor: 'var(--danger)', marginBottom: 16, textAlign: 'center', padding: 20 }}>
                 <p style={{ color: 'var(--danger)', fontWeight: 600, marginBottom: 12 }}>No credits remaining</p>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                  <button className="btn btn-gold" onClick={handleReward} disabled={rewardLoading}>🎬 Watch Ad (+3 free)</button>
+                  <button className="btn btn-gold" onClick={handleReward} >🎬 Watch Ad (+3 free)</button>
                   <button className="btn btn-stripe" onClick={() => setActiveTab('billing')}>💳 Buy Credits</button>
                 </div>
               </div>
@@ -807,8 +923,8 @@ function Dashboard({ session }) {
                     <p style={{ fontSize: 13, marginBottom: 4 }}>Watch a short video → <strong style={{ color: 'var(--accent-3)' }}>+3 credits</strong></p>
                     <p style={{ fontSize: 11, color: 'var(--text-dim)' }}>Up to 5 times per day (15 free credits/day) · 2 min cooldown</p>
                   </div>
-                  <button className="btn btn-gold" onClick={handleReward} disabled={rewardLoading} style={{ minWidth: 150 }}>
-                    {rewardLoading ? '⏳ Loading ad...' : '▶ Watch Ad (+3)'}
+                  <button className="btn btn-gold" onClick={handleReward} style={{ minWidth: 150 }}>
+                    {'▶ Watch Ad (+3)'}
                   </button>
                 </div>
               </div>
