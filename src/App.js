@@ -1,150 +1,98 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || '';
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_ANON_KEY);
 
 function App() {
   const [session, setSession] = useState(null);
   const [credits, setCredits] = useState(0);
-  const [prompt, setPrompt] = useState("");
-  const [result, setResult] = useState("");
+  const [apiKey, setApiKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchCredits(session.user);
+      if (session) fetchData(session.user);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchCredits(session.user);
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
-  const fetchCredits = async (user) => {
-    const { data } = await supabase.from('profiles').select('credits').eq('id', user.id).single();
-    setCredits(data?.credits || 0);
+  const fetchData = async (user) => {
+    // Récupérer les crédits
+    const { data: profile } = await supabase.from('profiles').select('credits').eq('id', user.id).single();
+    setCredits(profile?.credits || 0);
+
+    // Récupérer la clé API si elle existe déjà
+    const { data: keyData } = await supabase.from('api_keys').select('key_value').eq('user_id', user.id).single();
+    if (keyData) setApiKey(keyData.key_value);
+  };
+
+  const generateNewKey = async () => {
+    setLoading(true);
+    const newKey = `amine_live_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+    
+    const { error } = await supabase.from('api_keys').insert([
+      { user_id: session.user.id, key_value: newKey }
+    ]);
+
+    if (error) {
+      alert("Erreur : Vous avez peut-être déjà une clé ou un problème de connexion.");
+    } else {
+      setApiKey(newKey);
+    }
+    setLoading(false);
   };
 
   const handleLogin = async () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) alert("Erreur : " + error.message);
-    else alert("Vérifie ta boîte mail ! Clique sur le lien pour te connecter.");
+    if (error) alert(error.message);
+    else alert("Lien envoyé par email !");
     setLoading(false);
   };
 
-  const handleGenerate = async () => {
-    if (credits <= 0) {
-      setResult("Vous n'avez plus de crédits. Veuillez regarder une publicité.");
-      return;
-    }
-    setLoading(true);
-    setResult("");
-    try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${session?.access_token}` 
-        },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-      if (data.result) {
-        setResult(data.result);
-        fetchCredits(session.user);
-      } else {
-        setResult("Erreur IA : " + JSON.stringify(data));
-      }
-    } catch (e) {
-      setResult("Erreur de communication avec le serveur.");
-    }
-    setLoading(false);
-  };
-
-  const handleWatchAd = async () => {
-    alert("Lancement de la publicité...");
-    try {
-      const res = await fetch('/api/reward', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${session?.access_token}` }
-      });
-      const data = await res.json();
-      if(data.success) {
-         alert("10 Crédits ajoutés !");
-         fetchCredits(session.user);
-      } else {
-         alert("Erreur validation : " + JSON.stringify(data));
-      }
-    } catch (e) {
-      alert("Erreur de réseau avec la régie publicitaire.");
-    }
-  };
-
-  // 🔒 ÉCRAN DE CONNEXION (Si non connecté)
   if (!session) {
     return (
-      <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
-        <h1>Amine AI Creator</h1>
-        <p>Identifie-toi pour accéder à l'IA</p>
-        <input 
-          type="email" 
-          placeholder="Ton adresse email" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '10px', marginBottom: '10px' }}
-        />
-        <button onClick={handleLogin} disabled={loading} style={{ width: '100%', padding: '10px', background: 'black', color: 'white', fontWeight: 'bold' }}>
-          {loading ? "Envoi en cours..." : "Recevoir mon lien d'accès"}
-        </button>
+      <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'sans-serif' }}>
+        <h1>Amine API</h1>
+        <p>Espace Créateur - Accès Gratuit à l'IA</p>
+        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} style={{ padding: '10px', width: '250px' }} />
+        <button onClick={handleLogin} style={{ padding: '10px 20px', marginLeft: '10px', background: 'black', color: 'white' }}>Se connecter</button>
       </div>
     );
   }
 
-  // 🔓 ÉCRAN PRINCIPAL (Si connecté)
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Amine AI</h1>
-        <button onClick={() => supabase.auth.signOut()} style={{ background: 'transparent', border: '1px solid #ccc', padding: '5px 10px', borderRadius: '5px' }}>Déconnexion</button>
-      </div>
+      <h1>Dashboard Créateur</h1>
       
-      <div style={{ background: '#f4f4f4', padding: '20px', borderRadius: '10px' }}>
-        <p>💰 Crédits : <strong>{credits}</strong></p>
-        <button onClick={handleWatchAd} style={{ background: '#FFD700', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer', width: '100%', fontWeight: 'bold' }}>
-          📺 Regarder une Pub (+10)
+      {/* SECTION CREDITS */}
+      <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #eee' }}>
+        <h3>💰 Tes Crédits : {credits}</h3>
+        <p style={{ fontSize: '0.9em', color: '#666' }}>Regarde une publicité pour recharger ton compte et utiliser l'API gratuitement.</p>
+        <button style={{ width: '100%', padding: '12px', background: '#FFD700', border: 'none', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer' }}>
+          📺 Regarder une Pub (+10 Crédits)
         </button>
       </div>
 
-      <div style={{ marginTop: '20px' }}>
-        <textarea 
-          placeholder="Pose ton prompt ici..." 
-          style={{ width: '100%', height: '100px', padding: '10px', boxSizing: 'border-box' }}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button 
-          onClick={handleGenerate} 
-          disabled={loading}
-          style={{ width: '100%', padding: '15px', background: 'black', color: 'white', marginTop: '10px', borderRadius: '5px', fontWeight: 'bold' }}
-        >
-          {loading ? "Génération en cours..." : "Générer (1 Crédit)"}
-        </button>
+      {/* SECTION API KEY */}
+      <div style={{ background: '#fff', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+        <h3>🔑 Ta Clé API</h3>
+        {apiKey ? (
+          <div style={{ background: '#e9ecef', padding: '15px', borderRadius: '5px', wordBreak: 'break-all', fontWeight: 'mono', border: '1px dashed #adb5bd' }}>
+            <code>{apiKey}</code>
+          </div>
+        ) : (
+          <button onClick={generateNewKey} disabled={loading} style={{ width: '100%', padding: '12px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px', fontWeight: 'bold' }}>
+            {loading ? "Génération..." : "Générer ma clé API"}
+          </button>
+        )}
+        <p style={{ fontSize: '0.8em', color: '#888', marginTop: '10px' }}>
+          Garde cette clé secrète. Elle te permet d'appeler notre service depuis tes propres applications.
+        </p>
       </div>
 
-      {result && (
-        <div style={{ marginTop: '20px', border: '1px solid #ddd', padding: '15px', borderRadius: '5px', background: '#fff' }}>
-          <strong>Résultat IA :</strong>
-          <p>{result}</p>
-        </div>
-      )}
+      <button onClick={() => supabase.auth.signOut()} style={{ marginTop: '30px', background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}>Se déconnecter</button>
     </div>
   );
 }
