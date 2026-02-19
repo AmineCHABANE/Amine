@@ -598,13 +598,41 @@ function Dashboard({ session }) {
     return () => clearTimeout(timer);
   }, [adModalOpen, adCountdown]);
 
-  // Load AdSense ad when modal opens
+  // Load ads when modal opens — AdSense primary, Adsterra fallback
   useEffect(() => {
-    if (adModalOpen) {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) { /* ad blocker or not loaded */ }
-    }
+    if (!adModalOpen) return;
+
+    // Try AdSense first
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) { /* AdSense not ready */ }
+
+    // Load Adsterra after 1.5s
+    const adsterraTimer = setTimeout(() => {
+      const container = document.getElementById('adsterra-reward-container');
+      if (!container) return;
+
+      // Hide fallback message
+      const fallbackMsg = document.getElementById('ad-fallback-msg');
+      if (fallbackMsg) fallbackMsg.style.display = 'none';
+
+      // Inject atOptions config
+      window.atOptions = {
+        key: '4597b34efe7f59ee1a483dc7cb84fc78',
+        format: 'iframe',
+        height: 250,
+        width: 300,
+        params: {}
+      };
+
+      // Inject invoke.js script
+      const script = document.createElement('script');
+      script.src = 'https://www.highperformanceformat.com/4597b34efe7f59ee1a483dc7cb84fc78/invoke.js';
+      script.async = true;
+      container.appendChild(script);
+    }, 1500);
+
+    return () => clearTimeout(adsterraTimer);
   }, [adModalOpen]);
 
   const claimReward = async () => {
@@ -654,7 +682,6 @@ function Dashboard({ session }) {
             borderRadius: 16, padding: 32, maxWidth: 500, width: '90%',
             textAlign: 'center', position: 'relative',
           }}>
-            {/* Close (only after ad watched) */}
             {adWatched && (
               <button onClick={() => setAdModalOpen(false)} style={{
                 position: 'absolute', top: 12, right: 16,
@@ -671,13 +698,14 @@ function Dashboard({ session }) {
               View the ad below for 30 seconds to claim your free credits.
             </p>
 
-            {/* AdSense Display Ad */}
+            {/* Ad Container — AdSense primary, Adsterra fallback */}
             <div style={{
               background: 'var(--surface-2)', border: '1px solid var(--border)',
               borderRadius: 8, minHeight: 250, marginBottom: 20,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              overflow: 'hidden',
+              overflow: 'hidden', position: 'relative',
             }}>
+              {/* AdSense (shows when approved) */}
               <ins className="adsbygoogle"
                 style={{ display: 'block', width: '100%', height: 250 }}
                 data-ad-client="ca-pub-7526517043500512"
@@ -685,6 +713,23 @@ function Dashboard({ session }) {
                 data-ad-format="rectangle"
                 data-full-width-responsive="true"
               />
+
+              {/* Adsterra fallback container — shows when AdSense not available */}
+              <div id="adsterra-reward-container" style={{
+                position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {/* Adsterra ad will be injected here by their script */}
+                {/* If neither network loads, show sponsored message */}
+                <div id="ad-fallback-msg" style={{
+                  padding: 20, textAlign: 'center',
+                  color: 'var(--text-dim)', fontSize: 12,
+                }}>
+                  <div style={{ fontSize: 48, marginBottom: 12, filter: 'grayscale(1) opacity(0.3)' }}>📢</div>
+                  <p>Sponsored content loading...</p>
+                  <p style={{ marginTop: 8, fontSize: 11 }}>Ad networks initializing. Please wait.</p>
+                </div>
+              </div>
             </div>
 
             {/* Countdown / Claim */}
@@ -703,7 +748,6 @@ function Dashboard({ session }) {
                 <p style={{ fontSize: 12, color: 'var(--text-dim)' }}>
                   Please wait {adCountdown} seconds...
                 </p>
-                {/* Progress bar */}
                 <div style={{
                   width: '100%', height: 4, background: 'var(--border)',
                   borderRadius: 2, marginTop: 12, overflow: 'hidden',
