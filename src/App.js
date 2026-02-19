@@ -154,7 +154,7 @@ const API_CATALOG = [
     status: 'live',
     cost: 1,
     example: {
-      request: `curl -X POST https://amineapi.dev/api/chat \\
+      request: `curl -X POST https://api-amine.vercel.app/api/chat \\
   -H "x-api-key: YOUR_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"prompt": "Explain quantum computing"}'`,
@@ -175,7 +175,7 @@ const API_CATALOG = [
     status: 'coming',
     cost: 1,
     example: {
-      request: `curl "https://amineapi.dev/api/email-verify?email=test@gmail.com" \\
+      request: `curl "https://api-amine.vercel.app/api/email-verify?email=test@gmail.com" \\
   -H "x-api-key: YOUR_KEY"`,
       response: `{
   "valid": true,
@@ -195,7 +195,7 @@ const API_CATALOG = [
     status: 'coming',
     cost: 1,
     example: {
-      request: `curl "https://amineapi.dev/api/currency?from=EUR&to=USD&amount=100" \\
+      request: `curl "https://api-amine.vercel.app/api/currency?from=EUR&to=USD&amount=100" \\
   -H "x-api-key: YOUR_KEY"`,
       response: `{
   "from": "EUR",
@@ -216,7 +216,7 @@ const API_CATALOG = [
     status: 'coming',
     cost: 1,
     example: {
-      request: `curl "https://amineapi.dev/api/qrcode?data=https://example.com&size=300" \\
+      request: `curl "https://api-amine.vercel.app/api/qrcode?data=https://example.com&size=300" \\
   -H "x-api-key: YOUR_KEY"`,
       response: `// Returns PNG image binary
 // Content-Type: image/png`
@@ -232,7 +232,7 @@ const API_CATALOG = [
     status: 'coming',
     cost: 1,
     example: {
-      request: `curl "https://amineapi.dev/api/ip-geo?ip=8.8.8.8" \\
+      request: `curl "https://api-amine.vercel.app/api/ip-geo?ip=8.8.8.8" \\
   -H "x-api-key: YOUR_KEY"`,
       response: `{
   "ip": "8.8.8.8",
@@ -253,12 +253,12 @@ const API_CATALOG = [
     status: 'coming',
     cost: 1,
     example: {
-      request: `curl -X POST https://amineapi.dev/api/shorten \\
+      request: `curl -X POST https://api-amine.vercel.app/api/shorten \\
   -H "x-api-key: YOUR_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"url": "https://very-long-url.com/path"}'`,
       response: `{
-  "short_url": "https://amineapi.dev/s/x7kQ2",
+  "short_url": "https://api-amine.vercel.app/s/x7kQ2",
   "expires_at": null,
   "clicks": 0
 }`
@@ -317,7 +317,7 @@ function LandingPage({ onLogin }) {
           <div className="code-block">
             <div style={{ position: 'absolute', top: 12, right: 16, fontSize: 11, color: 'var(--text-dim)' }}>bash</div>
             <span className="line-cm"># Get an answer from AI in one line</span><br/>
-            <span className="line-fn">curl</span> <span className="line-str">-X POST</span> https://amineapi.dev/api/chat \<br/>
+            <span className="line-fn">curl</span> <span className="line-str">-X POST</span> https://api-amine.vercel.app/api/chat \<br/>
             &nbsp;&nbsp;<span className="line-str">-H</span> <span className="line-str">"x-api-key: YOUR_KEY"</span> \<br/>
             &nbsp;&nbsp;<span className="line-str">-H</span> <span className="line-str">"Content-Type: application/json"</span> \<br/>
             &nbsp;&nbsp;<span className="line-str">-d</span> <span className="line-str">'{`{"prompt": "Hello world"}`}'</span>
@@ -571,7 +571,7 @@ function Dashboard({ session }) {
               <span style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 12 }}>⚡ Quick Start</span>
               <div className="code-block" style={{ fontSize: 12 }}>
                 <span className="line-cm"># Test your API key</span><br/>
-                <span className="line-fn">curl</span> -X POST https://amineapi.dev/api/chat \<br/>
+                <span className="line-fn">curl</span> -X POST https://api-amine.vercel.app/api/chat \<br/>
                 &nbsp;&nbsp;-H <span className="line-str">"x-api-key: {apiKey || 'YOUR_KEY'}"</span> \<br/>
                 &nbsp;&nbsp;-H <span className="line-str">"Content-Type: application/json"</span> \<br/>
                 &nbsp;&nbsp;-d <span className="line-str">'{`{"prompt":"Hello!"}`}'</span>
