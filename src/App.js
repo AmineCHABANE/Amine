@@ -31,7 +31,7 @@ function App() {
 
   const handleWaterfall = async (t) => {
     setLoading(true);
-    if (t === 'fast') window.open("https://ton-lien-monetag.com", "_blank");
+    if (t === 'fast') window.open("https://omg10.com/4/10627259", "_blank");
     else alert("Google Ads Premium - Chargement...");
     
     await fetch('/api/reward', { method: 'POST', headers: { 'Authorization': `Bearer ${session?.access_token}` } });
