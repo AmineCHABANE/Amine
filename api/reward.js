@@ -1,11 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
+const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 export default async function handler(req, res) {
-  const token = req.headers.authorization?.split(' ')[1];
-  const { data: { user } } = await supabase.auth.getUser(token);
-  if (!user) return res.status(401).json({ error: "Non autorisé" });
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'Non identifié' });
 
-  await supabase.rpc('manage_credits', { target_user_id: user.id, amount: 10 });
-  return res.status(200).json({ success: true });
+  const token = authHeader.split(' ')[1];
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+
+  if (error || !user) return res.status(401).json({ error: 'Session invalide' });
+
+  // Ajout de 5 crédits pour une pub standard
+  await supabase.rpc('increment_credits', { user_id_input: user.id, amount: 5 });
+
+  return res.status(200).json({ success: true, message: '5 Crédits ajoutés' });
 }
