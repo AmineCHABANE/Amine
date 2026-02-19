@@ -389,7 +389,20 @@ function Dashboard({ session }) {
     }, 1500);
     const chk = setInterval(() => {
       const c = document.getElementById('ad-box'); if (!c) return;
-      if (c.querySelector('iframe') || document.querySelector('.adsbygoogle[data-ad-status="filled"]')) { setAdOk(true); setAdFail(false); clearInterval(chk); }
+      const hasIframe = c.querySelector('iframe');
+      const adsenseFilled = document.querySelector('.adsbygoogle[data-ad-status="filled"]');
+      if (hasIframe || adsenseFilled) {
+        setAdOk(true); setAdFail(false); clearInterval(chk);
+        // Enable clicks on the ad
+        if (hasIframe) {
+          c.style.pointerEvents = 'auto';
+          hasIframe.style.pointerEvents = 'auto';
+        }
+        if (adsenseFilled) {
+          // AdSense is behind the overlay, hide overlay so AdSense is clickable
+          c.style.display = 'none';
+        }
+      }
     }, 1000);
     const fl = setTimeout(() => { setAdOk(ok => { if (!ok) setAdFail(true); return ok; }); }, 10000);
     return () => { clearTimeout(at); clearInterval(chk); clearTimeout(fl); };
@@ -427,9 +440,11 @@ function Dashboard({ session }) {
             <p style={{ fontSize:11, color:'var(--text-3)', marginBottom:14 }}>View 30 seconds to claim.</p>
 
             <div style={{ background:'var(--surface-2)', border:'1px solid var(--border)', borderRadius:'var(--r-sm)', minHeight:250, marginBottom:14, display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', position:'relative' }}>
+              {/* AdSense (when approved) */}
               <ins className="adsbygoogle" style={{ display:'block', width:'100%', height:250 }} data-ad-client="ca-pub-7526517043500512" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true" />
-              <div id="ad-box" style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <div id="ad-msg" style={{ padding:14, textAlign:'center', color:'var(--text-3)', fontSize:11 }}>
+              {/* Adsterra injected here — pointer-events auto so ads are clickable */}
+              <div id="ad-box" style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', pointerEvents:'none' }}>
+                <div id="ad-msg" style={{ padding:14, textAlign:'center', color:'var(--text-3)', fontSize:11, pointerEvents:'none' }}>
                   <div style={{ fontSize:32, marginBottom:6, opacity:.3 }}>📢</div>Loading ad...
                 </div>
               </div>
