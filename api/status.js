@@ -16,7 +16,7 @@ export default function handler(req, res) {
       ip_geo: { method: 'GET', path: '/api/ip-geo', status: 'coming_soon' },
       shorten: { method: 'POST', path: '/api/shorten', status: 'coming_soon' },
     },
-    docs: 'https://amineapi.dev/docs',
+    docs: 'https://api-amine.vercel.app',
     auth: 'API key via x-api-key header',
     free_tier: '1000 requests/month',
     rate_limit: '1 request per 2 seconds'
