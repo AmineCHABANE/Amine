@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AmineAPI — Free API Platform for Developers | AI Chat, Email Verify, Weather, Currency & 15+ REST APIs</title>
+    <meta name="description" content="Free REST API platform with 15+ endpoints: AI Chat (GPT-4o), Email Verification, Currency Exchange, Weather, QR Codes, URL Shortener, IP Geolocation & more. One API key, 1000 free requests/month." />
+    <meta name="keywords" content="free API, REST API, AI chat API, email verification API, currency exchange API, weather API, QR code API, developer tools, API platform, GPT-4o API, IP geolocation API, URL shortener API, free developer API, API marketplace" />
+    <meta name="author" content="Amine Chabane" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <link rel="canonical" href="https://api-amine.vercel.app" />
+    <meta property="og:title" content="AmineAPI — Free API Platform for Developers" />
+    <meta property="og:description" content="15+ REST APIs with one key. AI Chat, Email Verify, Weather, Currency, QR Codes & more. 1000 free requests/month." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://api-amine.vercel.app" />
+    <meta property="og:site_name" content="AmineAPI" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AmineAPI — Free API Platform for Developers" />
+    <meta name="twitter:description" content="15+ REST APIs with one key. Free tier included." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"WebApplication","name":"AmineAPI","url":"https://api-amine.vercel.app","applicationCategory":"DeveloperApplication","operatingSystem":"Any","description":"Developer-first REST API platform with 15+ endpoints including AI Chat, Email Verification, Currency Exchange, Weather, QR Codes, and more.","author":{"@type":"Person","name":"Amine Chabane","url":"https://github.com/AmineCHABANE"},"offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD","description":"1000 requests/month"},{"@type":"Offer","name":"Pro","price":"19","priceCurrency":"USD","description":"50,000 requests/month"},{"@type":"Offer","name":"Enterprise","price":"99","priceCurrency":"USD","description":"Unlimited requests"}],"featureList":["AI Chat API (GPT-4o-mini)","AI Summarization API","AI Translation API (30+ languages)","Sentiment Analysis API","Email Verification API","Currency Exchange API (170+ currencies)","Weather Forecast API","IP Geolocation API","QR Code Generator API","URL Shortener API","Password Generator API","Hash API","UUID Generator API","Lorem Ipsum API","Placeholder Image API"]}
+    </script>
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I get a free API key?","acceptedAnswer":{"@type":"Answer","text":"Sign up with Google or email at api-amine.vercel.app. You get a free API key instantly with 1000 requests per month."}},{"@type":"Question","name":"What APIs are included for free?","acceptedAnswer":{"@type":"Answer","text":"All 15 APIs are included in the free tier: AI Chat, Summarize, Translate, Sentiment, Email Verify, Currency, Weather, IP Geo, QR Code, URL Shortener, Password, Hash, UUID, Lorem Ipsum, Placeholder Images."}},{"@type":"Question","name":"What programming languages work with AmineAPI?","acceptedAnswer":{"@type":"Answer","text":"AmineAPI is a standard REST API that works with any language: Python, JavaScript, Go, Ruby, PHP, Java, cURL, and more. Use the x-api-key header for authentication."}},{"@type":"Question","name":"Is a credit card required?","acceptedAnswer":{"@type":"Answer","text":"No. The free tier requires no credit card. You get 1000 requests/month instantly after signup. Paid plans start at $2."}},{"@type":"Question","name":"What is the rate limit?","acceptedAnswer":{"@type":"Answer","text":"Free: 10 req/min. Pro: 100 req/min. Enterprise: No limit."}}]}
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7526517043500512" crossorigin="anonymous"></script>
+    <style>
+      .pre{font-family:Inter,system-ui,sans-serif;background:#09090b;color:#fafafa;min-height:100vh}
+      .pre h1{font-size:clamp(26px,7vw,42px);font-weight:700;line-height:1.1;letter-spacing:-1px;text-align:center;margin:40px 20px 14px;background:linear-gradient(135deg,#fafafa 30%,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+      .pre p{color:#a1a1aa;text-align:center;max-width:440px;margin:0 auto;padding:0 20px;line-height:1.6;font-size:15px}
+      .pre .cta{display:flex;justify-content:center;margin:28px 0;gap:10px}
+      .pre .cta a{background:#22c55e;color:#09090b;padding:13px 28px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px}
+      .pre .ag{max-width:620px;margin:30px auto;padding:0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+      .pre .ac{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;text-align:center}
+      .pre .ac h3{font-size:12px;margin:4px 0 2px}.pre .ac p{font-size:10px;color:#52525b;margin:0}
+      .pre code{display:block;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px;font-family:monospace;font-size:12px;color:#22c55e;overflow-x:auto;line-height:1.7;max-width:560px;margin:20px auto;white-space:pre-wrap}
+      .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+    </style>
+  </head>
+  <body>
+    <!-- SEO pre-rendered content — hidden when React mounts -->
+    <div id="pre" class="pre">
+      <nav style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <span style="font-weight:700;font-size:17px;color:#22c55e">⚡ AmineAPI</span>
+        <a href="#" style="background:#22c55e;color:#09090b;padding:8px 16px;border-radius:10px;font-weight:600;text-decoration:none;font-size:13px">Sign In</a>
+      </nav>
+      <section style="padding:20px 0">
+        <h1>One API key. Every tool you need.</h1>
+        <p>AI Chat, Translate, Summarize, Weather, Email Verify, Currency, QR Codes & more — one fast REST API with a generous free tier. 1000 free requests per month.</p>
+        <div class="cta"><a href="#">Get Free API Key →</a></div>
+        <code>curl -X POST https://api-amine.vercel.app/api/chat \
+  -H "x-api-key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Hello"}'</code>
+      </section>
+      <section style="padding:0 0 30px">
+        <h2 style="font-size:22px;text-align:center;margin-bottom:16px;font-weight:700">15+ APIs Included Free</h2>
+        <div class="ag">
+          <article class="ac"><span style="font-size:22px">🧠</span><h3>AI Chat</h3><p>GPT-4o text generation</p></article>
+          <article class="ac"><span style="font-size:22px">📝</span><h3>AI Summarize</h3><p>Text & URL summarization</p></article>
+          <article class="ac"><span style="font-size:22px">🌐</span><h3>AI Translate</h3><p>30+ languages</p></article>
+          <article class="ac"><span style="font-size:22px">😊</span><h3>Sentiment</h3><p>Emotion detection</p></article>
+          <article class="ac"><span style="font-size:22px">📧</span><h3>Email Verify</h3><p>MX + disposable check</p></article>
+          <article class="ac"><span style="font-size:22px">💱</span><h3>Currency</h3><p>170+ exchange rates</p></article>
+          <article class="ac"><span style="font-size:22px">🌤️</span><h3>Weather</h3><p>7-day forecast</p></article>
+          <article class="ac"><span style="font-size:22px">🌍</span><h3>IP Geolocation</h3><p>VPN & Tor detection</p></article>
+          <article class="ac"><span style="font-size:22px">📱</span><h3>QR Code</h3><p>PNG & SVG</p></article>
+          <article class="ac"><span style="font-size:22px">🔗</span><h3>URL Shortener</h3><p>Click tracking</p></article>
+          <article class="ac"><span style="font-size:22px">🔐</span><h3>Password</h3><p>Crypto-safe</p></article>
+          <article class="ac"><span style="font-size:22px">#️⃣</span><h3>Hash</h3><p>SHA256, MD5, SHA512</p></article>
+          <article class="ac"><span style="font-size:22px">🆔</span><h3>UUID</h3><p>v4 batch generator</p></article>
+          <article class="ac"><span style="font-size:22px">📄</span><h3>Lorem Ipsum</h3><p>Placeholder text</p></article>
+          <article class="ac"><span style="font-size:22px">🖼️</span><h3>Placeholder</h3><p>SVG images</p></article>
+        </div>
+      </section>
+      <section style="max-width:560px;margin:0 auto 30px;padding:0 16px">
+        <h2 style="font-size:22px;text-align:center;margin-bottom:8px;font-weight:700">Simple Pricing</h2>
+        <p>Free: 1,000 req/month ($0). Pro: 50,000 req/month ($19). Enterprise: Unlimited ($99). Credit packs from $2.</p>
+      </section>
+      <div class="sr">
+        <h2>AmineAPI — Free REST API Platform for Developers</h2>
+        <p>AmineAPI provides 15+ production-ready REST API endpoints accessible through a single API key. The platform runs on Vercel Edge for global low-latency delivery and uses Supabase for authentication and data storage. AI-powered endpoints use OpenAI GPT-4o-mini for natural language processing tasks including text generation, summarization, translation between 30+ languages, and sentiment analysis with emotion detection. Utility endpoints cover email verification with MX record lookup and disposable email detection, real-time currency exchange rates for over 170 currencies, weather forecasts with current conditions and 7-day outlooks for any city worldwide, IP geolocation with VPN, proxy, and Tor detection, QR code generation in PNG and SVG formats with customizable colors, URL shortening with click analytics, cryptographically secure password generation with entropy calculation, hashing with MD5 SHA1 SHA256 and SHA512 algorithms, UUID v4 generation with batch support, lorem ipsum placeholder text, and SVG placeholder image generation. Authentication uses API keys passed via the x-api-key HTTP header. The free tier includes 1000 requests per month with no credit card required. Paid plans offer increased rate limits and request quotas. The API returns JSON responses with consistent error handling and includes latency metrics and remaining credit counts in every response.</p>
+      </div>
+      <footer style="border-top:1px solid rgba(255,255,255,.08);padding:20px 16px;text-align:center">
+        <p style="font-size:11px;color:#52525b">© 2026 AmineAPI — <a href="https://github.com/AmineCHABANE" style="color:#a1a1aa;text-decoration:none">GitHub</a> · <a href="https://api-amine.vercel.app/api/status" style="color:#a1a1aa;text-decoration:none">API Status</a> · Secured by Stripe</p>
+      </footer>
+    </div>
+    <div id="root"></div>
+    <script>
+      var o=new MutationObserver(function(){var r=document.getElementById('root');if(r&&r.children.length>0){var p=document.getElementById('pre');if(p)p.style.display='none';o.disconnect()}});
+      o.observe(document.getElementById('root'),{childList:true});
+    </script>
+  </body>
+</html>

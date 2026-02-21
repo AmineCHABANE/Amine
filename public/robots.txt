@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/checkout
+Disallow: /api/webhook
+Disallow: /api/reward
+
+Sitemap: https://api-amine.vercel.app/sitemap.xml
